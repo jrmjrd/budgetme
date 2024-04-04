@@ -13,6 +13,7 @@ class ExpensesDisplay extends StatelessWidget {
     return Expanded(
       child: Container(
         // margin: const EdgeInsets.symmetric(horizontal: 10),
+        padding: const EdgeInsets.all(10),
         decoration:  BoxDecoration(
           border: const Border(
             top: BorderSide(width: 1, color: Colors.white),

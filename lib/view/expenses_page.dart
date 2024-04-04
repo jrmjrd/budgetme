@@ -3,6 +3,7 @@
 import 'package:budgetme/converter_functions/functions.dart';
 import 'package:budgetme/database/expenses_db.dart';
 import 'package:budgetme/model/expenses.dart';
+import 'package:budgetme/view/component/budget_card.dart';
 import 'package:budgetme/view/component/expenses_display.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -58,11 +59,6 @@ class _ExpensesPageState extends State<ExpensesPage> {
     );
   }
 
-  void addBudget(){
-
-  }
-
-
   @override 
   void initState() {
     Provider.of<BudgetExpenseDB>(context, listen: false).readSpecificExpenses(widget.expensesType);
@@ -79,14 +75,10 @@ class _ExpensesPageState extends State<ExpensesPage> {
     _totalExpenses = Provider.of<BudgetExpenseDB>(context, listen: false).totalSpecificExpenses(widget.expensesType);
   }
 
-
-  
   @override
   Widget build(BuildContext context) {
     return Consumer<BudgetExpenseDB>(
       builder: (context, value, child) {
-
-
         return Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -103,11 +95,10 @@ class _ExpensesPageState extends State<ExpensesPage> {
           ),
           child: Scaffold(
             appBar: AppBar(
+              elevation: 0,
               backgroundColor: Colors.transparent,
-            ),
-            floatingActionButton: FloatingActionButton(
-              onPressed: newExpense,
-              child: const Icon(Icons.add),
+              centerTitle: true,
+              title: const Text("Expenses List"),
             ),
             backgroundColor: Colors.transparent,
             body: Column(
@@ -117,22 +108,35 @@ class _ExpensesPageState extends State<ExpensesPage> {
                     height: 300, 
                     width: MediaQuery.of(context).size.width,
                     child: Stack(
-                      // alignment: Alignment.center,
                       children: [
                         Positioned(
                           left: 0,
                           child: delete(widget.expensesType)
                         ),
-                        Positioned(
+                        const Positioned(
                           right: 5,
                           child: Column(
                             children: [
-                              const SizedBox(height: 15,),
-                              const Text("Expenditure Type:", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
-                              Text(widget.expensesType, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                              SizedBox(height: 15,),
+                              Text(
+                                "Expenses Type:", 
+                                style: TextStyle(
+                                  color: Colors.white, fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                )
+                              ),
+                              Text(
+                                "Credit/Debit/Cash",
+                                style: TextStyle(
+                                  color: Colors.white, 
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14,
+                                )
+                              ),
                             ],
                           )
                         ),
+                        
                         Center(
                           child: FutureBuilder(
                             future: _totalExpenses, 
@@ -141,19 +145,37 @@ class _ExpensesPageState extends State<ExpensesPage> {
                                 final totalAmount = snapshot.data ?? 0;
                                 double totalExpenditures = totalAmount;
 
-                                return Text(totalExpenditures.toString());
-                              }
-
-                              else {
+                                return BudgetCard(
+                                  expensesType: widget.expensesType,
+                                  amount: formatCurrency(totalExpenditures),
+                                );
+                              }else {
                                 return const Text("Loading..");
                               }
                             }
+                          ),
+                        ),
+                      
+                        Positioned(
+                          left: 5,
+                          bottom: 0,
+                          child: TextButton(
+                            onPressed: newExpense,
+                            child: const Text(
+                              "+ Add Expenses",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white
+                              ),
+                            ),
                           ),
                         )
                       ],
                     )
                   )
                 ),
+
                 ExpensesDisplay(
                   child: ListView.separated(
                     separatorBuilder: (context, index) => const Divider(thickness: 1, height: 0,),
@@ -219,8 +241,6 @@ class _ExpensesPageState extends State<ExpensesPage> {
           //Clear text fields
           expensesNameController.clear();
           expensesAmountController.clear();
-
-          refreshExpensesData();
         }
       },
       child: const Text("Add Expense"),
@@ -233,7 +253,13 @@ class _ExpensesPageState extends State<ExpensesPage> {
         await context.read<BudgetExpenseDB>().delete(type);
         refreshExpensesData();
       }, 
-      child: const Text("Delete all", style: TextStyle(color: Colors.white),)
+      child: const Text(
+        "Delete Expenses", 
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 16
+        ),
+      )
     );
   }
 }

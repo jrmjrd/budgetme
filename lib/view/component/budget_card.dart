@@ -3,10 +3,14 @@ import 'package:flutter/material.dart';
 
 class BudgetCard extends StatelessWidget {
   final String expensesType;
+  final String? amount;
+  final String? dateTime;
 
   const BudgetCard({
     super.key,
-    required this.expensesType
+    required this.expensesType,
+    this.amount,
+    this.dateTime
   });
 
   @override
@@ -18,9 +22,10 @@ class BudgetCard extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(top: 5),
         padding: const EdgeInsets.all(10),
-        height: MediaQuery.of(context).size.height * .15,
+        height: MediaQuery.of(context).size.height * .17,
         width: MediaQuery.of(context).size.width * .8,
         decoration: BoxDecoration(
+          border: Border.all(width: 1, color: const Color(0xffe2e2e2) ),
           borderRadius: const BorderRadius.all(Radius.circular(10)),
           boxShadow: kElevationToShadow[2],
           gradient: const LinearGradient(
@@ -61,30 +66,30 @@ class BudgetCard extends StatelessWidget {
                       Text(
                         expensesType,
                         style: const TextStyle(
-                          fontSize: 20,
+                          fontSize: 18,
                           fontWeight: FontWeight.w600,
                           color: Colors.white
                         ),
                       )
                     ],
                   ),
-                  const Column(
+                  Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text(
-                        "Total Expenditures:",
+                      const Text(
+                        "Total Cost:",
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w400,
                           color: Colors.white70
                         ),
                       ),
-                      SizedBox(height: 10,),
+                      const SizedBox(height: 10,),
                       Text(
-                        "not working", //amount 
-                        style: TextStyle(
-                          fontSize: 20,
+                        amount ?? "not working", 
+                        style: const TextStyle(
+                          fontSize: 18,
                           fontWeight: FontWeight.w600,
                           color: Colors.white
                         ),
@@ -94,10 +99,10 @@ class BudgetCard extends StatelessWidget {
                 ],
               ),
             ),
-            const Text(
-              "Last Updated: 20/20/2000", //datetime
-              style: TextStyle(
-                fontSize: 10,
+            Text(
+              dateTime ?? "Last Updated: 20/20/2000", 
+              style: const TextStyle(
+                fontSize: 12,
                 fontWeight: FontWeight.w500,
                 color: Colors.white
               ),

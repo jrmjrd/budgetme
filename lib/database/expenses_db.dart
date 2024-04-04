@@ -11,23 +11,20 @@ class BudgetExpenseDB extends ChangeNotifier {
   // static late Isar budgetDB;
 
   final List<Expenses> _allExpenses = [];
-  final List<BudgetModel> _budget = [];
   final List<ExpensesType> _type = [];
   final List<Expenses> _specificExpenses = [];
 
   static Future<void> initialize() async{
     final dir = await getApplicationDocumentsDirectory();
     expensesDB = await Isar.open([ExpensesSchema, BudgetModelSchema, ExpensesTypeSchema], directory: dir.path); //Creation of Database instance or Table
-    // budgetDB = await Isar.open([BudgetModelSchema], directory: dir.path); //Budget Database
 
   }
 
-  List<Expenses> get allExpenses => _allExpenses; //use to retrieve the data
-  List<BudgetModel> get budget => _budget;
+  List<Expenses> get allExpenses => _allExpenses; //use to retrieve the data for display uses
   List<ExpensesType> get expensesType => _type;
   List<Expenses> get specExpenses => _specificExpenses;
-  /* CRUD Operation Below */
 
+  /* GENERAL CRUD Operation Below */
   //Create
   Future<void> createNewExpensesType(ExpensesType newExpensesType)async{
     await expensesDB.writeTxn(() => expensesDB.expensesTypes.put(newExpensesType));
