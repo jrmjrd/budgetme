@@ -1,6 +1,8 @@
 # budgetme
 
-A personal project that aims to be used as a Budget tracker.
+A personal on-going project that aims to be used as a Budget tracker.
+
+This project is using Isar Database as the Local Database and Provider for state management.
 
 ## Getting Started
 
