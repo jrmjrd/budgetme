@@ -2,10 +2,8 @@
 
 import 'package:budgetme/converter_functions/functions.dart';
 import 'package:budgetme/database/expenses_db.dart';
-import 'package:budgetme/model/budget.dart';
 import 'package:budgetme/model/expenses.dart';
 import 'package:budgetme/view/component/expenses_display.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -143,7 +141,7 @@ class _ExpensesPageState extends State<ExpensesPage> {
                                 final totalAmount = snapshot.data ?? 0;
                                 double totalExpenditures = totalAmount;
 
-                                return Text(totalAmount.toString());
+                                return Text(totalExpenditures.toString());
                               }
 
                               else {
