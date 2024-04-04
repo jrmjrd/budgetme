@@ -1,6 +1,6 @@
 # budgetme
 
-A new Flutter project.
+A personal project that aims to be used as a Budget tracker.
 
 ## Getting Started
 
