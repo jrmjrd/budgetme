@@ -1,8 +1,10 @@
+import 'package:budgetme/model/expenses_type.dart';
+import 'package:budgetme/view/component/expenses_display.dart';
 import 'package:budgetme/view/expenses_page.dart';
 import 'package:flutter/material.dart';
 
 class BudgetCard extends StatelessWidget {
-  final String expensesType;
+  final ExpensesType expensesType;
   final String? amount;
   final String? dateTime;
 
@@ -64,7 +66,7 @@ class BudgetCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 10,),
                       Text(
-                        expensesType,
+                        expensesType.type,
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
@@ -99,9 +101,9 @@ class BudgetCard extends StatelessWidget {
                 ],
               ),
             ),
-            Text(
-              dateTime ?? "Last Updated: 20/20/2000", 
-              style: const TextStyle(
+            const Text(
+              "not working", 
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
                 color: Colors.white

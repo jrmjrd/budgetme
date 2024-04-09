@@ -17,8 +17,13 @@ const ExpensesTypeSchema = CollectionSchema(
   name: r'ExpensesType',
   id: 117414707341387692,
   properties: {
-    r'type': PropertySchema(
+    r'amount': PropertySchema(
       id: 0,
+      name: r'amount',
+      type: IsarType.double,
+    ),
+    r'type': PropertySchema(
+      id: 1,
       name: r'type',
       type: IsarType.string,
     )
@@ -53,7 +58,8 @@ void _expensesTypeSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.type);
+  writer.writeDouble(offsets[0], object.amount);
+  writer.writeString(offsets[1], object.type);
 }
 
 ExpensesType _expensesTypeDeserialize(
@@ -63,7 +69,8 @@ ExpensesType _expensesTypeDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = ExpensesType(
-    type: reader.readString(offsets[0]),
+    amount: reader.readDoubleOrNull(offsets[0]),
+    type: reader.readString(offsets[1]),
   );
   object.id = id;
   return object;
@@ -77,6 +84,8 @@ P _expensesTypeDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 1:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -177,6 +186,88 @@ extension ExpensesTypeQueryWhere
 
 extension ExpensesTypeQueryFilter
     on QueryBuilder<ExpensesType, ExpensesType, QFilterCondition> {
+  QueryBuilder<ExpensesType, ExpensesType, QAfterFilterCondition>
+      amountIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'amount',
+      ));
+    });
+  }
+
+  QueryBuilder<ExpensesType, ExpensesType, QAfterFilterCondition>
+      amountIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'amount',
+      ));
+    });
+  }
+
+  QueryBuilder<ExpensesType, ExpensesType, QAfterFilterCondition> amountEqualTo(
+    double? value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'amount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<ExpensesType, ExpensesType, QAfterFilterCondition>
+      amountGreaterThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'amount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<ExpensesType, ExpensesType, QAfterFilterCondition>
+      amountLessThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'amount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<ExpensesType, ExpensesType, QAfterFilterCondition> amountBetween(
+    double? lower,
+    double? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'amount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
   QueryBuilder<ExpensesType, ExpensesType, QAfterFilterCondition> idEqualTo(
       Id value) {
     return QueryBuilder.apply(this, (query) {
@@ -373,6 +464,18 @@ extension ExpensesTypeQueryLinks
 
 extension ExpensesTypeQuerySortBy
     on QueryBuilder<ExpensesType, ExpensesType, QSortBy> {
+  QueryBuilder<ExpensesType, ExpensesType, QAfterSortBy> sortByAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'amount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ExpensesType, ExpensesType, QAfterSortBy> sortByAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'amount', Sort.desc);
+    });
+  }
+
   QueryBuilder<ExpensesType, ExpensesType, QAfterSortBy> sortByType() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'type', Sort.asc);
@@ -388,6 +491,18 @@ extension ExpensesTypeQuerySortBy
 
 extension ExpensesTypeQuerySortThenBy
     on QueryBuilder<ExpensesType, ExpensesType, QSortThenBy> {
+  QueryBuilder<ExpensesType, ExpensesType, QAfterSortBy> thenByAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'amount', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ExpensesType, ExpensesType, QAfterSortBy> thenByAmountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'amount', Sort.desc);
+    });
+  }
+
   QueryBuilder<ExpensesType, ExpensesType, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -415,6 +530,12 @@ extension ExpensesTypeQuerySortThenBy
 
 extension ExpensesTypeQueryWhereDistinct
     on QueryBuilder<ExpensesType, ExpensesType, QDistinct> {
+  QueryBuilder<ExpensesType, ExpensesType, QDistinct> distinctByAmount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'amount');
+    });
+  }
+
   QueryBuilder<ExpensesType, ExpensesType, QDistinct> distinctByType(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -428,6 +549,12 @@ extension ExpensesTypeQueryProperty
   QueryBuilder<ExpensesType, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<ExpensesType, double?, QQueryOperations> amountProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'amount');
     });
   }
 

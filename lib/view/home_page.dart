@@ -1,3 +1,4 @@
+import 'package:budgetme/converter_functions/functions.dart';
 import 'package:budgetme/database/expenses_db.dart';
 import 'package:budgetme/model/expenses_type.dart';
 import 'package:budgetme/view/component/budget_card.dart';
@@ -92,7 +93,7 @@ class _HomePageState extends State<HomePage> {
                           Provider.of<BudgetExpenseDB>(context, listen: false).deleteExpensesTypeList();
                         }, 
                         child: const Text(
-                          "Clear Expenses List",
+                          "Clear All Data",
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -117,8 +118,8 @@ class _HomePageState extends State<HomePage> {
                             bottom: 5
                           ),
                           child: BudgetCard(
-                            expensesType: type.type,
-                            // amount: ,
+                            expensesType: type,
+                            amount: formatCurrency(type.amount!),
                           ),
                         );
                       },
@@ -139,7 +140,7 @@ class _HomePageState extends State<HomePage> {
         if(expensesType.text.isNotEmpty){
           Navigator.pop(context);
 
-          ExpensesType newExpensesType = ExpensesType(type: expensesType.text);
+          ExpensesType newExpensesType = ExpensesType(type: expensesType.text, amount: 0);
           await context.read<BudgetExpenseDB>().createNewExpensesType(newExpensesType);
 
           expensesType.clear();

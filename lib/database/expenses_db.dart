@@ -63,11 +63,21 @@ class BudgetExpenseDB extends ChangeNotifier {
     await readExpenses();
   }
 
+
+  Future<void> updateExpType(int id, ExpensesType updateExpensesType) async{
+    updateExpensesType.id = id;
+
+    await expensesDB.writeTxn(() => expensesDB.expensesTypes.put(updateExpensesType));
+    
+    await readExpensesType();
+  }
   //Delete
   Future<void> deleteExpensesTypeList() async{
-    await expensesDB.writeTxn(() => expensesDB.expensesTypes.where().deleteAll());
+    await expensesDB.writeTxn(() => expensesDB.expensesTypes.clear());
+    await expensesDB.writeTxn(() => expensesDB.expenses.clear());
 
     await readExpensesType();
+    await readExpenses();
   }
   Future<double> totalAllExpenses() async{
     await readExpenses();

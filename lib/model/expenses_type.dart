@@ -6,8 +6,10 @@ part 'expenses_type.g.dart';
 class ExpensesType{
   Id id = Isar.autoIncrement;
   final String type;
+  double? amount;
 
   ExpensesType({
-    required this.type
+    required this.type,
+    this.amount
   });
 }

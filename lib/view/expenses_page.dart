@@ -1,15 +1,16 @@
-// ignore_for_file: unrelated_type_equality_checks
+// ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously
 
 import 'package:budgetme/converter_functions/functions.dart';
 import 'package:budgetme/database/expenses_db.dart';
 import 'package:budgetme/model/expenses.dart';
+import 'package:budgetme/model/expenses_type.dart';
 import 'package:budgetme/view/component/budget_card.dart';
 import 'package:budgetme/view/component/expenses_display.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ExpensesPage extends StatefulWidget {
-  final String expensesType;
+  final ExpensesType expensesType;
 
   const ExpensesPage({
     super.key,
@@ -61,18 +62,33 @@ class _ExpensesPageState extends State<ExpensesPage> {
 
   @override 
   void initState() {
-    Provider.of<BudgetExpenseDB>(context, listen: false).readSpecificExpenses(widget.expensesType);
+    Provider.of<BudgetExpenseDB>(context, listen: false).readSpecificExpenses(widget.expensesType.type);
     
     //load futures
     refreshExpensesData();
-
+    updateExpensesTypeData();
     super.initState();
   }  
   
 
   //refresh the data for updated
   void refreshExpensesData(){
-    _totalExpenses = Provider.of<BudgetExpenseDB>(context, listen: false).totalSpecificExpenses(widget.expensesType);
+    _totalExpenses = Provider.of<BudgetExpenseDB>(context, listen: false).totalSpecificExpenses(widget.expensesType.type);
+    updateExpensesTypeData();
+  }
+  void updateExpensesTypeData() async{
+    double amount = 0;
+    await Provider.of<BudgetExpenseDB>(context, listen: false).totalSpecificExpenses(widget.expensesType.type).then((value) => amount = value);
+
+    ExpensesType updateExpensesType = ExpensesType(
+      type: widget.expensesType.type,
+      amount: amount
+    );
+
+    int id = widget.expensesType.id;
+
+    Provider.of<BudgetExpenseDB>(context, listen: false).updateExpType(id, updateExpensesType) ;
+  
   }
 
   @override
@@ -111,7 +127,7 @@ class _ExpensesPageState extends State<ExpensesPage> {
                       children: [
                         Positioned(
                           left: 0,
-                          child: delete(widget.expensesType)
+                          child: delete(widget.expensesType.type)
                         ),
                         const Positioned(
                           right: 5,
@@ -184,7 +200,6 @@ class _ExpensesPageState extends State<ExpensesPage> {
                     itemBuilder: (context, index) {
                       //Get expenses
                       Expenses expensesList = value.specExpenses[index];
-                  
                       return ListTile(
                         title: Text(expensesList.name),
                         subtitle: Text("Type: ${expensesList.type.toString()}"),
@@ -230,7 +245,7 @@ class _ExpensesPageState extends State<ExpensesPage> {
             name: expensesNameController.text, 
             amount: stringToDouble(expensesAmountController.text), 
             date: DateTime.now(),
-            type: widget.expensesType
+            type: widget.expensesType.type
           );
 
           //add to database
