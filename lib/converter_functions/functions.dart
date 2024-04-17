@@ -13,3 +13,8 @@ String formatCurrency(double amount){
   final format = NumberFormat.currency(locale: "en_PH", symbol: "\₱ ", decimalDigits: 2);
   return format.format(amount);
 }
+
+String dateFormat(DateTime date){
+  final format = DateFormat('MM/dd/yyyy').format(date);
+  return format;
+}

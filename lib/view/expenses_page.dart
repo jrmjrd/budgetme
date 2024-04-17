@@ -1,5 +1,5 @@
 // ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously
-
+import 'package:budgetme/controller/to_pdf.dart';
 import 'package:budgetme/converter_functions/functions.dart';
 import 'package:budgetme/database/expenses_db.dart';
 import 'package:budgetme/model/expenses.dart';
@@ -7,6 +7,7 @@ import 'package:budgetme/model/expenses_type.dart';
 import 'package:budgetme/view/component/budget_card.dart';
 import 'package:budgetme/view/component/expenses_display.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class ExpensesPage extends StatefulWidget {
@@ -26,7 +27,7 @@ class _ExpensesPageState extends State<ExpensesPage> {
   TextEditingController expensesAmountController = TextEditingController();
   TextEditingController budgetAmountController = TextEditingController();
   TextEditingController budgetDurationController = TextEditingController();
-
+  TextEditingController dateController = TextEditingController();
   //load total expenses data
   Future<double>? _totalExpenses;
 
@@ -48,6 +49,12 @@ class _ExpensesPageState extends State<ExpensesPage> {
               controller: expensesAmountController,
               decoration: const InputDecoration(
                 hintText: "Amount"
+              ),
+            ),
+            TextField(
+              controller: dateController,
+              decoration: const InputDecoration(
+                hintText: "Date (mm/dd/yyyy)"
               ),
             ),
           ],
@@ -127,7 +134,12 @@ class _ExpensesPageState extends State<ExpensesPage> {
                       children: [
                         Positioned(
                           left: 0,
-                          child: delete(widget.expensesType.type)
+                          child: 
+                          saveToPdf(
+                            'Vacation',
+                            value.specExpenses
+                          )
+                          // delete(widget.expensesType.type)
                         ),
                         const Positioned(
                           right: 5,
@@ -186,7 +198,8 @@ class _ExpensesPageState extends State<ExpensesPage> {
                               ),
                             ),
                           ),
-                        )
+                        ),
+                        
                       ],
                     )
                   )
@@ -199,11 +212,13 @@ class _ExpensesPageState extends State<ExpensesPage> {
                     itemCount: value.specExpenses.length,
                     itemBuilder: (context, index) {
                       //Get expenses
-                      Expenses expensesList = value.specExpenses[index];
+                      var toSort = value.specExpenses..sort((a, b) => a.amount.compareTo(b.amount));
+                      Expenses expenses = toSort[index];
+                      
                       return ListTile(
-                        title: Text(expensesList.name),
-                        subtitle: Text("Type: ${expensesList.type.toString()}"),
-                        trailing: Text(formatCurrency(expensesList.amount)),
+                        title: Text(expenses.name),
+                        subtitle: Text("Date: ${dateFormat(expenses.date)}"),
+                        trailing: Text(formatCurrency(expenses.amount)),
                         
                       );
                     }
@@ -244,7 +259,7 @@ class _ExpensesPageState extends State<ExpensesPage> {
           Expenses newExpenses = Expenses(
             name: expensesNameController.text, 
             amount: stringToDouble(expensesAmountController.text), 
-            date: DateTime.now(),
+            date: dateController.text.isEmpty ? DateTime.now() : DateFormat('MM/dd/yyyy').parse(dateController.text),
             type: widget.expensesType.type
           );
 
@@ -256,6 +271,7 @@ class _ExpensesPageState extends State<ExpensesPage> {
           //Clear text fields
           expensesNameController.clear();
           expensesAmountController.clear();
+          dateController.clear();
         }
       },
       child: const Text("Add Expense"),
@@ -270,6 +286,22 @@ class _ExpensesPageState extends State<ExpensesPage> {
       }, 
       child: const Text(
         "Delete Expenses", 
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 16
+        ),
+      )
+    );
+  }
+
+  saveToPdf(String tableName, List<Expenses> expensesList){
+    return TextButton(
+      onPressed: (){
+        ToPdf(tableName: tableName, expenseList: expensesList).saveToPdf();
+        print(expensesList.map((e) => e.id));
+      }, 
+      child: const Text(
+        "save to pdf",
         style: TextStyle(
           color: Colors.white,
           fontSize: 16
