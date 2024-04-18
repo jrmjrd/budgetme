@@ -24,7 +24,9 @@ class ToPdf{
         build: (context) => [
           _header(context),
           tp.SizedBox(height: 50),
-          _tableContent(context)
+          _tableContent(context),
+          tp.SizedBox(height: 5),
+          _footNote(context)
         ]
       )
     );
@@ -87,7 +89,7 @@ class ToPdf{
                     tp.Text(
                       e,
                       style: tp.TextStyle(
-                        fontBold: tp.Font.helveticaBold(),
+                        fontWeight: tp.FontWeight.bold,
                         fontSize: 12
                       )
                     )
@@ -101,20 +103,20 @@ class ToPdf{
               children: [
                 tp.Column(
                   children: [
-                    tp.Text(e.name)
+                    tp.Text(dateFormat(e.date))
                   ]
                 ),
                 tp.Column(
                   children: [
                     tp.Text(
-                      dateFormat(e.date)
+                      e.name
                     )
                   ]
                 ),
                 tp.Column(
                   children: [
                     tp.Text(
-                      formatCurrency(e.amount)
+                      e.amount.toString()
                     )
                   ]
                 ),
@@ -126,4 +128,14 @@ class ToPdf{
     );
   }
 
+  tp.Widget _footNote(tp.Context context){
+    return tp.Text(
+      "*Note: The arrangement you are seeing is based on the display on your app.*",
+      style: tp.TextStyle(
+        fontStyle: tp.FontStyle.italic,
+        fontSize: 8,
+        fontWeight: tp.FontWeight.bold
+      )
+    );
+  }
 }

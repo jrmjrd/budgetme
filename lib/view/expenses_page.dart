@@ -5,8 +5,10 @@ import 'package:budgetme/database/expenses_db.dart';
 import 'package:budgetme/model/expenses.dart';
 import 'package:budgetme/model/expenses_type.dart';
 import 'package:budgetme/view/component/budget_card.dart';
+import 'package:budgetme/view/component/sort_dropdown.dart';
 import 'package:budgetme/view/component/expenses_display.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -22,12 +24,22 @@ class ExpensesPage extends StatefulWidget {
   State<ExpensesPage> createState() => _ExpensesPageState();
 }
 
+List<String> sorting = [
+    'Default',
+    'Amount (ASC)',
+    'Amount (DSC)',
+    'Date (ASC)',
+    'Date (DSC)',
+];
+
 class _ExpensesPageState extends State<ExpensesPage> {
   TextEditingController expensesNameController = TextEditingController();
   TextEditingController expensesAmountController = TextEditingController();
   TextEditingController budgetAmountController = TextEditingController();
   TextEditingController budgetDurationController = TextEditingController();
   TextEditingController dateController = TextEditingController();
+  String sortValue = sorting.first;
+
   //load total expenses data
   Future<double>? _totalExpenses;
 
@@ -77,7 +89,6 @@ class _ExpensesPageState extends State<ExpensesPage> {
     super.initState();
   }  
   
-
   //refresh the data for updated
   void refreshExpensesData(){
     _totalExpenses = Provider.of<BudgetExpenseDB>(context, listen: false).totalSpecificExpenses(widget.expensesType.type);
@@ -98,6 +109,7 @@ class _ExpensesPageState extends State<ExpensesPage> {
   
   }
 
+  
   @override
   Widget build(BuildContext context) {
     return Consumer<BudgetExpenseDB>(
@@ -122,6 +134,12 @@ class _ExpensesPageState extends State<ExpensesPage> {
               backgroundColor: Colors.transparent,
               centerTitle: true,
               title: const Text("Expenses List"),
+              actions: [
+                saveToPdf(
+                  'Vacation',
+                  value.specExpenses
+                )
+              ],
             ),
             backgroundColor: Colors.transparent,
             body: Column(
@@ -132,15 +150,11 @@ class _ExpensesPageState extends State<ExpensesPage> {
                     width: MediaQuery.of(context).size.width,
                     child: Stack(
                       children: [
-                        Positioned(
-                          left: 0,
-                          child: 
-                          saveToPdf(
-                            'Vacation',
-                            value.specExpenses
-                          )
-                          // delete(widget.expensesType.type)
-                        ),
+                        // Positioned(
+                        //   left: 0,
+                        //   child: delete(widget.expensesType.type)
+                        // ),
+
                         const Positioned(
                           right: 5,
                           child: Column(
@@ -200,6 +214,24 @@ class _ExpensesPageState extends State<ExpensesPage> {
                           ),
                         ),
                         
+                        Positioned(
+                          right: 5,
+                          bottom: 0,
+                          child: SortBy(
+                            value: sortValue,
+                            items: sorting.map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                            onChanged: (value){
+                              setState(() {
+                                sortValue = value;
+                              });
+                            },
+                          )
+                        )
                       ],
                     )
                   )
@@ -212,14 +244,47 @@ class _ExpensesPageState extends State<ExpensesPage> {
                     itemCount: value.specExpenses.length,
                     itemBuilder: (context, index) {
                       //Get expenses
-                      var toSort = value.specExpenses..sort((a, b) => a.amount.compareTo(b.amount));
+                      var toSort = switch (sortValue){
+                        'Amount (ASC)' =>
+                        value.specExpenses..sort((a, b) => a.amount.compareTo(b.amount)),
+                        'Amount (DSC)' =>
+                        value.specExpenses..sort((a, b) => b.amount.compareTo(a.amount)),
+                        'Date (ASC)' => 
+                        value.specExpenses..sort((a, b) => a.date.compareTo(b.date)),
+                        'Date (DSC)' => 
+                        value.specExpenses..sort((a, b) => b.date.compareTo(a.date)),
+                        
+                        String() => value.specExpenses..sort((a, b) => b.amount.compareTo(a.amount)),
+                      };
+
                       Expenses expenses = toSort[index];
                       
-                      return ListTile(
-                        title: Text(expenses.name),
-                        subtitle: Text("Date: ${dateFormat(expenses.date)}"),
-                        trailing: Text(formatCurrency(expenses.amount)),
-                        
+                      return Slidable(
+                        endActionPane: ActionPane(
+                          extentRatio: .2,
+                          motion: const BehindMotion(), 
+                          children: [
+                            SlidableAction(
+                              borderRadius: BorderRadius.circular(2),
+                              flex: 1,
+                              onPressed: (e)async{
+                                await context.read<BudgetExpenseDB>().delete(expenses.id,expenses.type!);
+                                refreshExpensesData();
+
+                              },
+                              backgroundColor: Colors.red.shade300,
+                              foregroundColor: Colors.white,
+                              icon: Icons.delete,
+                              label: "Delete",
+                            )
+                          ]
+                        ),
+                        child: ListTile(
+                          title: Text(expenses.name),
+                          subtitle: Text("Date: ${dateFormat(expenses.date)}"),
+                          trailing: Text(formatCurrency(expenses.amount)),
+                          
+                        ),
                       );
                     }
                   ),
@@ -278,35 +343,38 @@ class _ExpensesPageState extends State<ExpensesPage> {
     );
   }
 
-  delete(String type){
-    return TextButton(
+  delete(int id, String type){
+    return MaterialButton(
       onPressed: () async{
-        await context.read<BudgetExpenseDB>().delete(type);
+        await context.read<BudgetExpenseDB>().delete(id,type);
         refreshExpensesData();
       }, 
-      child: const Text(
-        "Delete Expenses", 
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 16
-        ),
-      )
     );
   }
 
   saveToPdf(String tableName, List<Expenses> expensesList){
-    return TextButton(
-      onPressed: (){
-        ToPdf(tableName: tableName, expenseList: expensesList).saveToPdf();
-        print(expensesList.map((e) => e.id));
-      }, 
-      child: const Text(
-        "save to pdf",
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 16
-        ),
-      )
+    return Padding(
+      padding: const EdgeInsets.only(right: 10),
+      child: GestureDetector(
+        onTap: (){
+          ToPdf(tableName: tableName, expenseList: expensesList).saveToPdf();
+        },
+        child: const Row(
+          children: [
+            Icon(
+              Icons.file_download_outlined,
+              size: 20,
+            ),
+            Text(
+              "to pdf",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 12
+              ),
+            ),
+          ],
+        ) 
+      ),
     );
   }
 }

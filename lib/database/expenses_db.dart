@@ -128,8 +128,13 @@ class BudgetExpenseDB extends ChangeNotifier {
   }
 
   //DELETE
-  Future<void> delete(String type) async{
+  Future<void> clear(String type) async{
     await expensesDB.writeTxn(() => expensesDB.expenses.where().filter().typeEqualTo(type).deleteAll());
+
+    await readSpecificExpenses(type);
+  }
+  Future<void> delete(int id, String type) async{
+    await expensesDB.writeTxn(() => expensesDB.expenses.where().idEqualTo(id).deleteAll());
 
     await readSpecificExpenses(type);
   }
